@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiz de Países Mejorado</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Fondo animado con gradiente */
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #6a11cb, #2575fc, #ff5f6d, #ffc371);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      user-select: none;
+    }
+
+    .container {
+      background: rgba(0,0,0,0.7);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 700px;
+      padding: 30px 40px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      text-shadow: 0 3px 6px rgba(0,0,0,0.6);
+    }
+
+    p.subtitle {
+      font-weight: 500;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.4);
+      color: #d1d5db;
+    }
+
+    /* Level select */
+    #level-select {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    #level-select input[type="radio"] {
+      display: none;
+    }
+
+    #level-select label {
+      padding: 12px 28px;
+      border-radius: 40px;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      user-select: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    #level-select input[type="radio"]:checked + label {
+      background: #ff5f6d;
+      color: white;
+      box-shadow: 0 5px 15px #ff5f6d;
+      transform: scale(1.1);
+    }
+
+    /* Buttons */
+    button {
+      background: #ff5f6d;
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 14px 40px;
+      font-size: 1.3rem;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(255,95,109,0.5);
+      transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+      user-select: none;
+    }
+
+    button:hover:not(:disabled) {
+      background: #ff3749;
+      box-shadow: 0 8px 25px rgba(255,55,73,0.7);
+      transform: scale(1.05);
+    }
+
+    button:disabled {
+      background: #ffb3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Quiz card */
+    .quiz-card {
+      background: #1f2937;
+      border-radius: 20px;
+      padding: 25px 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      text-align: left;
+      min-height: 250px;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.5s forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .question {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: #f3f4f6;
+    }
+
+    ul.options {
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 25px;
+    }
+
+    ul.options li {
+      margin-bottom: 15px;
+    }
+
+    ul.options li label {
+      background: rgba(255,255,255,0.1);
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: block;
+      cursor: pointer;
+      font-size: 1.15rem;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    ul.options li input[type="radio"] {
+      display: none;
+    }
+
+    ul.options li input[type="radio"]:checked + label {
+      background: #ff5f6d;
+      color: white;
+      box-shadow: 0 5px 15px rgba(255,95,109,0.7);
+      font-weight: 700;
+    }
+
+    /* Result message */
+    #result {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-top: 10px;
+      min-height: 30px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    #result.correct {
+      color: #22c55e;
+      opacity: 1;
+    }
+    #result.incorrect {
+      color: #ef4444;
+      opacity: 1;
+    }
+
+    /* Progress bar */
+    .progress-container {
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      height: 14px;
+      margin-bottom: 25px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #ff5f6d;
+      width: 0;
+      transition: width 0.4s ease;
+      border-radius: 20px;
+    }
+
+    /* Responsive */
+    @media(max-width: 480px) {
+      .container {
+        padding: 25px 20px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      button {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+      }
+      .question {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz de Países</h1>
+    <p class="subtitle">Elige un nivel y pon a prueba tus conocimientos</p>
+
+    <section id="level-section">
+      <div id="level-select">
+        <input type="radio" id="easy" name="level" value="easy" />
+        <label for="easy">Fácil</label>
+
+        <input type="radio" id="medium" name="level" value="medium" />
+        <label for="medium">Medio</label>
+
+        <input type="radio" id="hard" name="level" value="hard" />
+        <label for="hard">Difícil</label>
+      </div>
+      <button id="start-btn" disabled>Empezar Quiz</button>
+    </section>
+
+    <section id="quiz-section" style="display:none;">
+      <div class="progress-container" aria-label="Progreso del quiz">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="quiz-card">
+        <p class="question" id="question"></p>
+        <ul class="options" id="options"></ul>
+        <button id="submit-btn" disabled>Enviar respuesta</button>
+        <p id="result"></p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const quizData = {
+      easy: [
+        {
+          question: "¿Cuál es la capital de Francia?",
+          options: ["París", "Madrid", "Roma", "Berlín"],
+          correct: "París"
+        },
+        {
+          question: "¿Cuál país tiene esta bandera? 🇯🇵",
+          options: ["Corea del Sur", "Japón", "China", "Vietnam"],
+          correct: "Japón"
+        },
+        {
+          question: "¿En qué continente está Egipto?",
+          options: ["Asia", "Europa", "África", "Oceanía"],
+          correct: "África"
+        },
+        {
+          question: "¿Cuál es la capital de España?",
+          options: ["Barcelona", "Madrid", "Valencia", "Sevilla"],
+          correct: "Madrid"
+        },
+        {
+          question: "¿Qué país tiene esta bandera? 🇧🇷",
+          options: ["Argentina", "Brasil", "Chile", "Colombia"],
+          correct: "Brasil"
+        },
+        {
+          question: "¿Cuál es el idioma oficial de Brasil?",
+          options: ["Español", "Portugués", "Inglés", "Francés"],
+          correct: "Portugués"
+        },
+        {
+          question: "¿Cuál es la capital de México?",
+          options: ["Guadalajara", "Monterrey", "Ciudad de México", "Puebla"],
+          correct: "Ciudad de México"
+        }
+      ],
+      medium: [
+        {
+          question: "¿Cuál es la capital de Australia?",
+          options: ["Sídney", "Melbourne", "Canberra", "Perth"],
+          correct: "Canberra"
+        },
+        {
+          question: "¿Qué país tiene la bandera con una hoja de arce roja?",
+          options: ["Estados Unidos", "Canadá", "Reino Unido", "Nueva Zelanda"],
+          correct: "Canadá"
+        },
+        {
+          question: "¿Cuál es el país más grande del mundo por superficie?",
+          options: ["Canadá", "Estados Unidos", "Rusia", "China"],
+          correct: "Rusia"
+        },
+        {
+          question: "¿Cuál es la capital de Sudáfrica?",
+          options: ["Johannesburgo", "Pretoria", "Ciudad del Cabo", "Durban"],
+          correct: "Pretoria"
+        },
+        {
+          question: "¿Cuál país tiene la bandera con colores verde, amarillo y rojo en franjas horizontales?",
+          options: ["Etiopía", "Bolivia", "Ghana", "Camerún"],
+          correct: "Etiopía"
+        },
+        {
+          question: "¿Cuál es la moneda oficial de Japón?",
+          options: ["Yen", "Won", "Rupia", "Yuan"],
+          correct: "Yen"
+        },
+        {
+          question: "¿En qué país está la ciudad de Estambul?",
+          options: ["Grecia", "Turquía", "Bulgaria", "Chipre"],
+          correct: "Turquía"
+        }
+      ],
+      hard: [
+        {
+          question: "¿Cuál es la capital de Bután?",
+          options: ["Thimphu", "Kathmandú", "Lhasa", "Dhaka"],
+          correct: "Thimphu"
+        },
+        {
+          question: "¿Qué país tiene la bandera con un círculo rojo en un fondo blanco?",
+          options: ["Japón", "Bangladés", "Turquía", "Mónaco"],
+          correct: "Japón"
+        },
+        {
+          question: "¿Cuál es el país con la mayor densidad de población?",
+          options: ["India", "Mónaco", "Bangladés", "Singapur"],
+          correct: "Mónaco"
+        },
+        {
+          question: "¿Cuál es la capital de Mongolia?",
+          options: ["Ulan Bator", "Astana", "Tiflis", "Ulaanbaatar"],
+          correct: "Ulaanbaatar"
+        },
+        {
+          question: "¿Cuál país tiene la bandera con un sol amarillo y rayos en un fondo rojo?",
+          options: ["Kazajistán", "Kirgistán", "Uzbekistán", "Turkmenistán"],
+          correct: "Kirgistán"
+        },
+        {
+          question: "¿Cuál es la capital de Namibia?",
+          options: ["Windhoek", "Lusaka", "Harare", "Gaborone"],
+          correct: "Windhoek"
+        },
+        {
+          question: "¿Qué país tiene la bandera con un dragón rojo?",
+          options: ["China", "País de Gales", "Bhután", "Tíbet"],
+          correct: "País de Gales"
+        }
+      ]
+    };
+
+    let currentLevel = null;
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    const levelRadios = document.querySelectorAll('input[name="level"]');
+    const startBtn = document.getElementById('start-btn');
+    const levelSection = document.getElementById('level-section');
+    const quizSection = document.getElementById('quiz-section');
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultEl = document.getElementById('result');
+    const progressBar = document.getElementById('progress-bar');
+
+    // Habilitar botón Empezar solo si hay nivel seleccionado
+    levelRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        startBtn.disabled = !document.querySelector('input[name="level"]:checked');
+      });
+    });
+
+    // Iniciar quiz
+    startBtn.addEventListener('click', () => {
+      currentLevel = document.querySelector('input[name="level"]:checked').value;
+      currentQuestion = 0;
+      score = 0;
+      answered = false;
+
+      levelSection.style.display = 'none';
+      quizSection.style.display = 'block';
+
+      loadQuestion();
+      updateProgress();
+    });
+
+    function loadQuestion() {
+      answered = false;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviar respuesta';
+      resultEl.textContent = '';
+      resultEl.className = '';
+      // Animación fade in reset
+      quizSection.querySelector('.quiz-card').style.opacity = 0;
+      setTimeout(() => {
+        quizSection.querySelector('.quiz-card').style.opacity = 1;
+      }, 50);
+
+      const q = quizData[currentLevel][currentQuestion];
+      questionEl.textContent = q.question;
+
+      optionsEl.innerHTML = '';
+      q.options.forEach(opt => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <input type="radio" name="answer" id="opt-${opt}" value="${opt}" />
+          <label for="opt-${opt}">${opt}</label>
+        `;
+        optionsEl.appendChild(li);
+      });
+
+      // Activar botón cuando seleccionan una opción
+      const radios = optionsEl.querySelectorAll('input[name="answer"]');
+      radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          submitBtn.disabled = false;
+        });
+      });
+
+      updateProgress();
+    }
+
+    submitBtn.addEventListener('click', () => {
+      if (!answered) {
+        const selected = document.querySelector('input[name="answer"]:checked');
+        if (!selected) return;
+
+        const answer = selected.value;
+        const correctAnswer = quizData[currentLevel][currentQuestion].correct;
+
+        if (answer === correctAnswer) {
+          score++;
+          resultEl.className = 'correct';
+          resultEl.textContent = "¡Correcto! 🎉";
+        } else {
+          resultEl.className = 'incorrect';
+          resultEl.textContent = `Incorrecto. La respuesta correcta es: ${correctAnswer}`;
+        }
+
+        submitBtn.textContent = (currentQuestion < quizData[currentLevel].length - 1) ? "Siguiente pregunta" : "Ver puntuación";
+        answered = true;
+        submitBtn.disabled = false;
+      } else {
+        currentQuestion++;
+        if (currentQuestion < quizData[currentLevel].length) {
+          loadQuestion();
+        } else {
+          // Mostrar resultado final
+          questionEl.textContent = `¡Quiz terminado! Tu puntuación: ${score} / ${quizData[currentLevel].length}`;
+          optionsEl.innerHTML = '';
+          submitBtn.textContent = "Reiniciar Quiz";
+          resultEl.textContent = '';
+          resultEl.className = '';
+          progressBar.style.width = '100%';
+
+          submitBtn.onclick = () => {
+            // Reiniciar todo
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            quizSection.style.display = 'none';
+            levelSection.style.display = 'block';
+            startBtn.disabled = true;
+            submitBtn.onclick = null;
+          };
+        }
+      }
+      updateProgress();
+    });
+
+    function updateProgress() {
+      const total = quizData[currentLevel] ? quizData[currentLevel].length : 1;
+      const progressPercent = ((currentQuestion) / total) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+    }
+  </script>
+</body>
+</html>
